@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Pick-Stats.iml" filepath="$PROJECT_DIR$/.idea/Pick-Stats.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Pick_Stats.iml" filepath="$PROJECT_DIR$/.idea/Pick_Stats.iml" />
     </modules>
   </component>
 </project>
