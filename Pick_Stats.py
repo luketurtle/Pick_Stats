@@ -54,7 +54,6 @@ def display_users():
         all_users = User.query.all()
         return render_template('index.html', all_users=all_users)
 
-    return "This is what is supposed to display"
 # TODO:3 Set up html pages for scanning(login.html,
 
 
