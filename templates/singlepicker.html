@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h1>{{picker}}'s Sheets</h1>
+    {%if picks|length == 0 %}
+    <p>Nothing!</p>
+    {%else%}
+        {% for pick in picks %}
+        <h3>{{pick.pick_number}}</h3>
+        <p>{{pick.start_time}}</p>
+        <p>{{pick.end_time}}</p>
+        {% endfor %}
+    {%endif%}    
+{% endblock %}

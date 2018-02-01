@@ -2,10 +2,12 @@ from flask import Flask, request, render_template, session, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
+
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://pick-stats:pick-stats@localhost:3306/pick-stats'
 app.config['SQLALCHEMY_ECHO'] = True
+app.secret_key = 'PQ8v5e56rF'
 
 db = SQLAlchemy(app)
 
@@ -58,6 +60,8 @@ def login():
             person_picking = pickers.first()
             session['picker'] = person_picking.picker
             flash('Welcome Back, ' + User.picker)
+        flash("You aren't in the database. Please sign up first.")
+        return render_template('login.html', picker=picker)
 
 
 @app.route('/')
@@ -69,6 +73,14 @@ def display_users():
     else:
         all_users = User.query.all()
         return render_template('index.html', all_users=all_users)
+
+@app.route('/singlepicker')
+def single_picker():
+    if request.args.get('id'):
+        picker_id = request.args.get('id')
+        owner = User.query.get(picker_id)
+        picks = Pick.query.filter_by(owner=owner).all
+        return render_template('singlepicker.html', picks=picks, picker=owner.picker)
 
 
 @app.route('/signup', methods=['POST', 'GET'])

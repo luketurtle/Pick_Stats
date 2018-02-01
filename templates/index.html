@@ -1,10 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>List of Users Page.</title>
-</head>
-<body>
-    List of users page.
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Pickers</h1>
+
+    {% if all_users|length == 0 %}
+    <p>None added yet.</p>
+
+    {% else %}
+    {% for user in all_users %}
+    <a href="/singlepicker?id={{user.id}}">{{user.picker}}</a><br>
+    {% endfor %}
+    {% endif %}
+
+
+
+{% endblock %}
