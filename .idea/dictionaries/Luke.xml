@@ -4,7 +4,9 @@
       <w>endblock</w>
       <w>endfor</w>
       <w>endwith</w>
+      <w>picksheet</w>
       <w>pymysql</w>
+      <w>singlepicker</w>
       <w>sqlalchemy</w>
     </words>
   </dictionary>

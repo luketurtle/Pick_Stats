@@ -2,7 +2,6 @@ from flask import Flask, request, render_template, session, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://pick-stats:pick-stats@localhost:3306/pick-stats'
@@ -42,11 +41,11 @@ class Pick(db.Model):
 
 # TODO:2 Set up @app.routes for the various pages that will be used
 
-@app.before_request
+''' @app.before_request
 def require_login():
     allowed_routes = ['signup', 'login']
     if request.endpoint not in allowed_routes and 'picker' not in session:
-        return redirect('/login')
+        return redirect('/login') '''
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -74,13 +73,14 @@ def display_users():
         all_users = User.query.all()
         return render_template('index.html', all_users=all_users)
 
+
 @app.route('/singlepicker')
 def single_picker():
     if request.args.get('id'):
         picker_id = request.args.get('id')
         owner = User.query.get(picker_id)
         picks = Pick.query.filter_by(owner=owner).all
-        return render_template('singlepicker.html', picks=picks, picker=owner.picker)
+        return render_template('singlepicker.html', picks=picks, owner=User.picker)
 
 
 @app.route('/signup', methods=['POST', 'GET'])
@@ -107,9 +107,9 @@ def pick():
 
     if request.method == 'POST':
         picker = User.query.filter_by(picker=session['picker']).first()
-        pick_number = request.form['number']
-        start_time = request.form['time_start']
-        end_time = request.form['time_end']
+        pick_number = request.form['pick_number']
+        start_time = ''
+        end_time = ''
         long_pick_error = ''
         short_pick_error = ''
 
@@ -118,12 +118,19 @@ def pick():
 
         if len(pick_number) > 7:
             long_pick_error = "That pick number is too long. Please enter a valid pick number"
+        if len(start_time) < 1:
+            start_time = datetime.now()
+        else:
+            end_time = datetime.now()
 
         if not short_pick_error and not long_pick_error:
             new_pick = Pick(pick_number, start_time, end_time, picker)
-            timestamp = datetime.datetime.now()
-
-
+            db.session.add(new_pick)
+            db.session.commit()
+            new_url = "/pick?id=" + str(new_pick.id)
+            return redirect(new_url)
+        else:
+            return render_template('pick.html', short_pick_error=short_pick_error, )
 
 
 # TODO:3 Set up html pages for scanning(login.html,index.html,pick.html,signup.html)

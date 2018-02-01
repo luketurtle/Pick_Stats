@@ -1,10 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Signup Page.</title>
-</head>
-<body>
-    This is where all the signup page will go.
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Sign up for Pick Tracker!</h1>
+<form action="/signup" method ="post">
+    <table>
+        <tr>
+            <td><label for="picker">Picker</label></td>
+            <td><input name="picker" type="text" value="{{ picker }}"></td>
+        </tr>
+    </table>
+    <input type="submit" value="Create New Picker">
+</form>
+
+{% endblock %}
