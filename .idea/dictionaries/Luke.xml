@@ -1,6 +1,9 @@
 <component name="ProjectDictionaryState">
   <dictionary name="Luke">
     <words>
+      <w>endblock</w>
+      <w>endfor</w>
+      <w>endwith</w>
       <w>pymysql</w>
       <w>sqlalchemy</w>
     </words>

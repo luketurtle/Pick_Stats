@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{{title}}</title>
+        <style>
+            .error {
+                color: red;
+            }
+        </style>
+    </head>
+    <body>
+        <nav>
+            {% if 'picker' in session %}
+            {{ session['picker'] }}<br>
+            <div style="float:right;"><a href="/logout">Log Out</a></div>
+            {%else%}
+            <div style="float:right;"><a href="/signup">Sign Up</a></div><br>
+            <div style="float:right;"><a href="/login">Log In</a></div>
+            {% endif %}
+            <a href="/">Home</a><br>
+            <a href="/pick">All Picks</a><br>
+
+        </nav>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for message in messages %}
+                    <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}
+        {% endblock %}
+
+    </body>
+</html>
