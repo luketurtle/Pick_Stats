@@ -4,13 +4,16 @@
 
     <h1> Scan a Picksheet!</h1>
 
-    <form method="post">
-        <label for ="pick">Pick List:</label>
-        <input type="text" name="pick" value=""/>
+    <table method="post">
+        <tr><td><label for ="wave_number">Pick List:</label></td></tr>
+        <tr><td><input type="text" name="wave_number" value=""/></td></tr>
+        <tr><td><label for="pick_quantity">Pick Quantity:</label></td></tr>
+        <tr><td><input type="text" name="pick_quantity" value=""/></td></tr>
+    </table>
         <span class="error">{{long_pick_error}}</span>
         <span class="error">{{short_pick_error}}</span>
+        <span class="error">{{pick_quantity_error}}</span>
         <br>
         <input type="submit" value="Submit"/>
-    </form>
 
 {% endblock %}
