@@ -31,16 +31,12 @@ class Pick(db.Model):
     end_time = db.Column(db.DateTime)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, wave_number, start_time, end_time, owner):
+    def __init__(self, wave_number, pick_quantity, start_time, end_time, owner):
         self.wave_number = wave_number
+        self.pick_quantity = pick_quantity
         self.start_time = start_time
         self.end_time = end_time
         self.owner = owner
-
-
-# TODO:1 Figure out how to get timestamps on scans.
-
-# TODO:2 Set up @app.routes for the various pages that will be used
 
 @app.before_request
 def require_login():
@@ -60,7 +56,7 @@ def login():
             picker = users.first()
             session['picker'] = picker.picker
             flash('Welcome Back, ' + picker.picker)
-            return redirect('/')
+            return redirect('/pick/start')
         flash("You aren't in the database. Please sign up first.")
         return render_template('login.html', picker=picker)
 
@@ -92,6 +88,8 @@ def single_picker():
         return render_template('singlepicker.html', picks=picks, owner=owner.picker)
 
 
+# Prompts User for a login name and adds to database.
+
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
     if request.method == 'POST':
@@ -109,15 +107,28 @@ def signup():
         return render_template('signup.html')
 
 
-@app.route('/pick/start', methods=['POST', 'GET'])
+'''
+@app.route('pick', methods=['POST', 'GET'])
 def pick():
     if request.method == 'GET':
         return render_template('pick.html')
+    
+    if request.method == 'POST':       
+'''
+
+
+# prompts User for wave number scan and sends information to database
+
+@app.route('/pick/start', methods=['POST', 'GET'])
+def pick_start():
+    if request.method == 'GET':
+        return render_template('pick_start.html')
 
     if request.method == 'POST':
-        picker = User.query.filter_by(picker=session['picker']).first()
+        owner = User.query.filter_by(picker=session['picker']).first()
         wave_number = request.form['wave_number']
         pick_quantity = request.form['pick_quantity']
+        existing_wave = Pick.query.filter_by(wave_number=wave_number).first()
         start_time = ''
         end_time = ''
         long_pick_error = ''
@@ -125,28 +136,31 @@ def pick():
         pick_quantity_error = ''
 
         if len(wave_number) < 5:
-            short_pick_error = "That pick number is too short. Please enter a valid pick number"
+            short_pick_error = "That wave number is too short. Please enter a valid pick number."
         if len(wave_number) > 5:
-            long_pick_error = "That pick number is too long. Please enter a valid pick number"
+            long_pick_error = "That wave number is too long. Please enter a valid pick number."
         if len(pick_quantity) < 1:
-            pick_quantity_error = "Please scan a pick quantity to continue"
+            pick_quantity_error = "Please scan a pick quantity to continue."
 
         if not short_pick_error and not long_pick_error and not pick_quantity_error:
-            # if len(start_time) < 1:
-            # start_time = datetime.now()
-            # else:
-            # end_time = datetime.now()
-            new_pick = Pick(wave_number, pick_quantity, start_time, end_time, picker)
-            db.session.add(new_pick)
-            db.session.commit()
-            new_url = "/pick?id=" + str(new_pick.id)
-            return redirect(new_url)
+            if existing_wave:
+                flash("Great! I'll put an end time on that!")
+                existing_wave.end_time = datetime.now()
+                db.session.commit()
+                return redirect('/logout')
+            if len(start_time) < 1:
+                start_time = datetime.now()
+                new_pick = Pick(wave_number, pick_quantity, start_time, end_time, owner)
+                db.session.add(new_pick)
+                db.session.commit()
+                new_url = "/pick?id=" + str(new_pick.id)
+                return redirect('/logout')
         else:
-            return render_template('pick.html', short_pick_error=short_pick_error, long_pick_error=long_pick_error,
+            return render_template('pick_start.html', short_pick_error=short_pick_error,
+                                   long_pick_error=long_pick_error,
                                    pick_quantity_error=pick_quantity_error)
 
 
-# TODO:3 Set up html pages for scanning(login.html,index.html,pick.html,signup.html)
 
 
 if __name__ == "__main__":

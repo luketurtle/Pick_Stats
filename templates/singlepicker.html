@@ -6,10 +6,10 @@
     {%if picks|length == 0 %}
     <p>You haven't done anything!</p>
     {%else%}
-        {% for pick in picks %}
-        <h3>{{pick.pick_number}}</h3>
+        {% for pick in picks |sort(attribute='id', reverse = True)%}
+        <h3>{{pick.wave_number}}</h3>
         <p>{{pick.start_time}}</p>
         <p>{{pick.end_time}}</p>
         {% endfor %}
-    {%endif%}    
+    {%endif%}
 {% endblock %}
