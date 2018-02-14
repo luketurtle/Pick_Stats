@@ -12,8 +12,6 @@ db = SQLAlchemy(app)
 
 
 # MODELS
-
-
 class User(db.Model):
     id = (db.Column(db.Integer, primary_key=True))
     picker = (db.Column(db.String(30), unique=True))
@@ -38,6 +36,8 @@ class Pick(db.Model):
         self.end_time = end_time
         self.owner = owner
 
+
+# Requires login before scanning Pick data.
 @app.before_request
 def require_login():
     allowed_routes = ['signup', 'login']
@@ -45,22 +45,24 @@ def require_login():
         return redirect('/login')
 
 
+# Starts session for User and points them to the Picking page.
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'GET':
         return render_template('login.html')
     elif request.method == 'POST':
         picker = request.form['picker']
-        users = User.query.filter_by(picker=picker)
+        users = User.query.filter_by(id=picker)
         if users.count() == 1:
             picker = users.first()
             session['picker'] = picker.picker
             flash('Welcome Back, ' + picker.picker)
             return redirect('/pick/start')
-        flash("You aren't in the database. Please sign up first.")
+        flash("You aren't in the database. Please sign up first.", 'error')
         return render_template('login.html', picker=picker)
 
 
+# Removes User from session and returns to the login page.
 @app.route('/logout')
 def logout():
     del session['picker']
@@ -68,6 +70,7 @@ def logout():
     return redirect('login')
 
 
+# Displays list of clickable users that have been entered in to the database.
 @app.route('/')
 def display_users():
     if request.args.get('id'):
@@ -79,6 +82,7 @@ def display_users():
         return render_template('index.html', all_users=all_users)
 
 
+# Shows individual stats for pick times.
 @app.route('/singlepicker')
 def single_picker():
     if request.args.get('id'):
@@ -89,7 +93,6 @@ def single_picker():
 
 
 # Prompts User for a login name and adds to database.
-
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
     if request.method == 'POST':
@@ -97,6 +100,9 @@ def signup():
         existing_picker = User.query.filter_by(picker=picker).first()
         if existing_picker:
             flash('Someone already has that name.')
+            return redirect('/signup')
+        if len(picker) < 2:
+            flash("That name isn't long enough.")
             return redirect('/signup')
         user = User(picker=picker)
         db.session.add(user)
@@ -107,18 +113,15 @@ def signup():
         return render_template('signup.html')
 
 
-'''
-@app.route('pick', methods=['POST', 'GET'])
-def pick():
-    if request.method == 'GET':
-        return render_template('pick.html')
-    
-    if request.method == 'POST':       
-'''
+# Displays a list of picks sorted by user.
+@app.route('/pick')
+def all_picks():
+    all_users = User.query.all()
+    all_pick = Pick.query.all()
+    return render_template('all_pick.html', all_pick=all_pick, all_users=all_users)
 
 
-# prompts User for wave number scan and sends information to database
-
+# prompts User for wave number and quantity scan and sends information to database
 @app.route('/pick/start', methods=['POST', 'GET'])
 def pick_start():
     if request.method == 'GET':
@@ -153,14 +156,11 @@ def pick_start():
                 new_pick = Pick(wave_number, pick_quantity, start_time, end_time, owner)
                 db.session.add(new_pick)
                 db.session.commit()
-                new_url = "/pick?id=" + str(new_pick.id)
                 return redirect('/logout')
         else:
             return render_template('pick_start.html', short_pick_error=short_pick_error,
                                    long_pick_error=long_pick_error,
                                    pick_quantity_error=pick_quantity_error)
-
-
 
 
 if __name__ == "__main__":

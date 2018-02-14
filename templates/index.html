@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div align="center">
     <h1>Pickers</h1>
 
     {% if all_users|length == 0 %}
@@ -11,7 +12,7 @@
     <a href="/singlepicker?id={{user.id}}">{{user.picker}}</a><br>
     {% endfor %}
     {% endif %}
-
+</div>
 
 
 {% endblock %}

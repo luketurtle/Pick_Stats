@@ -1,39 +1,43 @@
 <!doctype html>
 <html>
-    <head>
-        <title>{{title}}</title>
-        <style>
-            .error {
+<head>
+    <title>{{title}}</title>
+    <style>
+            p.error {
                 color: red;
             }
-        </style>
-    </head>
-    <body>
-        <nav>
-            {% if 'picker' in session %}
-            {{ session['picker'] }}<br>
-            <div style="float:right;"><a href="/logout">Log Out</a></div>
-            {%else%}
-            <div style="float:right;"><a href="/signup">Sign Up</a></div><br>
-            <div style="float:right;"><a href="/login">Log In</a></div>
-            {% endif %}
-            <a href="/">Home</a><br>
-            <a href="/pick/start"><b>Get Picking</b></a><br>
 
-        </nav>
+    </style>
+</head>
+<body>
+<nav>
+    {% if 'picker' in session %}
+    <div align="center">
+        {{ session['picker'] }}<br>
+        {{ session['wave'] }}
+    </div>
+    <div style="float:right;"><a href="/logout">Log Out</a></div>
+    {%else%}
+    <div style="float:right;"><a href="/login">Log In</a></div>
+    {% endif %}
+    <a href="/">Home</a><br>
+    <a href="/pick">All Picks</a><br>
+    <a href="/pick/start"><b>Get Picking</b></a><br>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul class="flashes">
-                    {% for message in messages %}
-                    <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+</nav>
 
-        {% block content %}
-        {% endblock %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul class="error">
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
 
-    </body>
+{% block content %}
+{% endblock %}
+
+</body>
 </html>

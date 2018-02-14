@@ -1,16 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Log in to Pick Tracker!</h1>
-<p>Or <a href="/signup">signup</a> for a new account!</p>
-<form action="/login" method="post">
-    <table>
-        <tr>
-            <td><label for="picker">Picker</label></td>
-            <td><input name="picker" type="text" value="{{ picker }}"></td>
-        </tr>
-    </table>
-    <span class="error"></span>
-    <input type="submit" value="Login">
-</form>
+<div align="center">
+    <h1>Log in to Pick Tracker!</h1>
+    <form action="/login" method="post">
+        <table>
+            <tr>
+                <td><label for="picker">Picker</label></td>
+                <td><input name="picker" type="text" value="{{ picker }}"></td>
+            </tr>
+        </table>
+        <span class="error"></span>
+        <input type="submit" value="Login">
+    </form>
+</div>
 {% endblock %}

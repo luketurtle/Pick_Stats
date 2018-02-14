@@ -2,29 +2,35 @@
 
 {% block content %}
 
-<h1>{{owner}}'s Sheets</h1>
-{%if picks|length == 0 %}
-<p>You haven't done anything!</p>
-{%else%}
+<h1>Everything</h1>
 <style>
 table, th, td {
     border: 1px solid black;
 }
+
+
 </style>
+{% for user in all_users |sort(attribute='id') %}
 <table>
+
+    <caption>{{user.picker}}</caption>
+
     <tr>
         <th>Wave Number</th>
         <th>Start Time</th>
         <th>End Time</th>
     </tr>
-    {% for pick in picks |sort(attribute='id', reverse = True)%}
+    {% for pick in all_pick |sort(attribute='id', reverse = True)%}
+    {% if pick.owner_id == user.id %}
+
     <tr>
         <td>{{pick.wave_number}}</td>
         <td>{{pick.start_time}}</td>
         <td>{{pick.end_time}}</td>
     </tr>
+    {% endif %}
     {% endfor %}
-</table>
 
-{%endif%}
+</table>
+{% endfor %}
 {% endblock %}
