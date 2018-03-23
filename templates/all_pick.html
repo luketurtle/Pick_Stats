@@ -58,7 +58,7 @@ table, th, td {
     </tr>
     </thead>
     {% for pick in all_pick |sort(attribute='id', reverse=True) %}
-
+    {% if user.id == pick.owner_id %}
 
     <tbody>
     <tr>
@@ -70,7 +70,7 @@ table, th, td {
     </tr>
     </tbody>
 
-
+    {% endif %}
     {% endfor %}
 </table>
 {% endfor %}
