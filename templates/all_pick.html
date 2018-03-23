@@ -2,35 +2,76 @@
 
 {% block content %}
 
-<h1>Everything</h1>
+<h1>All The Pickers</h1>
 <style>
-table, th, td {
-    border: 1px solid black;
+
+#myTable {
+  border-collapse: collapse;
+  width: 50%;
+  border: 1px solid #000000;
+  font-size: 18px;
 }
 
+#myTable th, #myTable td {
+  text-align: center;
+  padding: 6px;
+}
 
+#myTable tr.header, #myTable tr:hover {
+  background-color: #f1f1f1;
+}
+
+table, th, td {
+  border-collapse: collapse;
+  border: 1px solid #000000;
+
+}
+#myTable{
+  counter-reset: serial-number;
+}
+#myTable td:first-child:before{
+  counter-increment: serial-number;
+  content: counter(serial-number);
+}
+
+#myTable tbody:nth-child(odd) tr{
+  background-color: #1E1E1E;
+  color: #ffffff;
+}
+#myTable tbody:nth-child(even) tr{
+  background-color: #D3D3D3;
+  color: #000000;
+}
 </style>
 {% for user in all_users |sort(attribute='id') %}
-<table>
+<table id="myTable">
 
     <caption>{{user.picker}}</caption>
 
+    <thead>
     <tr>
+        <th>Number</th>
         <th>Wave Number</th>
         <th>Start Time</th>
         <th>End Time</th>
+        <th>Pick Quantity</th>
     </tr>
-    {% for pick in all_pick |sort(attribute='id', reverse = True)%}
-    {% if pick.owner_id == user.id %}
+    </thead>
+    {% for pick in all_pick |sort(attribute='id', reverse=True) %}
 
+
+    <tbody>
     <tr>
+        <td></td>
         <td>{{pick.wave_number}}</td>
         <td>{{pick.start_time}}</td>
         <td>{{pick.end_time}}</td>
+        <td>{{pick.pick_quantity}}</td>
     </tr>
-    {% endif %}
-    {% endfor %}
+    </tbody>
 
+
+    {% endfor %}
 </table>
 {% endfor %}
 {% endblock %}

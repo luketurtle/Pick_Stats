@@ -1,6 +1,8 @@
 from flask import Flask, request, render_template, session, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -36,6 +38,12 @@ class Pick(db.Model):
         self.end_time = end_time
         self.owner = owner
 
+
+scope = ['https://spreadsheets.google.com/feeds']
+creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
+client = gspread.authorize(creds)
+
+sheet = client.open("Pick Times").sheet1
 
 # Requires login before scanning Pick data.
 @app.before_request
@@ -118,6 +126,7 @@ def signup():
 def all_picks():
     all_users = User.query.all()
     all_pick = Pick.query.all()
+
     return render_template('all_pick.html', all_pick=all_pick, all_users=all_users)
 
 
@@ -132,11 +141,13 @@ def pick_start():
         wave_number = request.form['wave_number']
         pick_quantity = request.form['pick_quantity']
         existing_wave = Pick.query.filter_by(wave_number=wave_number).first()
-        start_time = ''
-        end_time = ''
+        start_time = 0
+        end_time = 0
+
         long_pick_error = ''
         short_pick_error = ''
         pick_quantity_error = ''
+        end_time_error = ''
 
         if len(wave_number) < 5:
             short_pick_error = "That wave number is too short. Please enter a valid pick number."
@@ -144,21 +155,41 @@ def pick_start():
             long_pick_error = "That wave number is too long. Please enter a valid pick number."
         if len(pick_quantity) < 1:
             pick_quantity_error = "Please scan a pick quantity to continue."
+        if end_time > 0:
+            end_time_error = "This wave already has an end time."
 
-        if not short_pick_error and not long_pick_error and not pick_quantity_error:
+        if not short_pick_error and not long_pick_error and not pick_quantity_error and not end_time_error:
             if existing_wave:
                 flash("Great! I'll put an end time on that!")
                 existing_wave.end_time = datetime.now()
+                cell = str(sheet.find(wave_number))
+                r_cell = cell.replace("<Cell R", "")
+                row = ''
+                for i in r_cell:
+                    if i.isdigit():
+                        row += i
+                    else:
+                        break
+                row = int(row)
+                sheet.update_cell(row, 4, datetime.now())
                 db.session.commit()
                 return redirect('/logout')
-            if len(start_time) < 1:
+            elif start_time < 1:
                 start_time = datetime.now()
                 new_pick = Pick(wave_number, pick_quantity, start_time, end_time, owner)
                 db.session.add(new_pick)
+                row = [wave_number, pick_quantity, start_time, end_time, owner]
+                index = 2
+                sheet.insert_row(row, index)
                 db.session.commit()
                 return redirect('/logout')
+            else:
+                flash('That wave already has an end time.')
+                return redirect('/logout')
         else:
-            return render_template('pick_start.html', short_pick_error=short_pick_error,
+            return render_template('pick_start.html',
+                                   end_time_error=end_time_error,
+                                   short_pick_error=short_pick_error,
                                    long_pick_error=long_pick_error,
                                    pick_quantity_error=pick_quantity_error)
 
