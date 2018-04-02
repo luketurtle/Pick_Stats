@@ -45,6 +45,7 @@ client = gspread.authorize(creds)
 
 sheet = client.open("Pick Times").sheet1
 
+
 # Requires login before scanning Pick data.
 @app.before_request
 def require_login():
@@ -150,16 +151,15 @@ def pick_start():
         end_time_error = ''
 
         if len(wave_number) < 5:
-            short_pick_error = "That wave number is too short. Please enter a valid pick number."
+            short_pick_error = "That wave number is too short. Please enter a valid wave number."
         if len(wave_number) > 5:
-            long_pick_error = "That wave number is too long. Please enter a valid pick number."
+            long_pick_error = "That wave number is too long. Please enter a valid wave number."
         if len(pick_quantity) < 1:
             pick_quantity_error = "Please scan a pick quantity to continue."
         if end_time > 0:
             end_time_error = "This wave already has an end time."
-
         if not short_pick_error and not long_pick_error and not pick_quantity_error and not end_time_error:
-            if existing_wave:
+            if existing_wave:  # Searches the database for an existing wave
                 flash("Great! I'll put an end time on that!")
                 existing_wave.end_time = datetime.now()
                 cell = str(sheet.find(wave_number))
@@ -174,13 +174,12 @@ def pick_start():
                 sheet.update_cell(row, 4, datetime.now())
                 db.session.commit()
                 return redirect('/logout')
-            elif start_time < 1:
+            elif start_time < 1:  # If the record doesn't exist in the database, creates one.
                 start_time = datetime.now()
                 new_pick = Pick(wave_number, pick_quantity, start_time, end_time, owner)
                 db.session.add(new_pick)
-                row = [wave_number, pick_quantity, start_time, end_time, owner]
-                index = 2
-                sheet.insert_row(row, index)
+                row = [wave_number, pick_quantity, start_time, end_time, session['picker']]
+                sheet.append_row(row)
                 db.session.commit()
                 return redirect('/logout')
             else:
